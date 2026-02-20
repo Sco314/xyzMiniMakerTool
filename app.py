@@ -27,39 +27,33 @@ from urllib.parse import urlparse, parse_qs
 
 # ---- Bootstrap ----
 
-# CRITICAL: Embeddable Python's ._pth file restricts sys.path.
-# We must inject our app directory as an absolute path FIRST.
+# Embeddable Python's ._pth file can restrict sys.path.
+# Inject our app directory as an absolute path so the XYZDaVinciPlugin
+# package (a subdirectory of this app) is always importable.
 import os, sys, pathlib
 _APP_DIR = str(pathlib.Path(__file__).parent.resolve())
 
-# Force the app directory onto sys.path — try every method
 if _APP_DIR not in sys.path:
     sys.path.insert(0, _APP_DIR)
-# Also try via PYTHONPATH (START.bat sets this)
-os.environ["PYTHONPATH"] = _APP_DIR + os.pathsep + os.environ.get("PYTHONPATH", "")
 
-# If the ._pth file is still blocking us, create a sitecustomize.py
-# in the python/ directory that adds our path
-_python_dir = os.path.dirname(sys.executable)
-_sitecust = os.path.join(_python_dir, "sitecustomize.py")
-if not os.path.exists(_sitecust):
-    try:
-        with open(_sitecust, "w") as f:
-            f.write(f"import sys; sys.path.insert(0, {_APP_DIR!r})\n")
-    except (PermissionError, OSError):
-        pass  # Best effort
-
-# Last resort: manually add via importlib if normal import fails
 try:
     from XYZDaVinciPlugin.XYZProtocol import (
         XYZProtocol, XYZPrinterStatus, PRINTER_DB, STATE_NAMES
     )
     from XYZDaVinciPlugin.XYZFileConverter import XYZFileConverter
 except ModuleNotFoundError:
-    # Direct importlib load — bypasses sys.path entirely
-    import importlib.util
+    # Fallback: load modules directly by file path (bypasses sys.path)
+    import importlib.util, types
+
+    _plugin_dir = os.path.join(_APP_DIR, "XYZDaVinciPlugin")
+
+    # Register the parent package first
+    _pkg = types.ModuleType("XYZDaVinciPlugin")
+    _pkg.__path__ = [_plugin_dir]
+    sys.modules["XYZDaVinciPlugin"] = _pkg
+
     def _force_load(mod_name, filename):
-        fpath = os.path.join(_APP_DIR, "XYZDaVinciPlugin", filename)
+        fpath = os.path.join(_plugin_dir, filename)
         spec = importlib.util.spec_from_file_location(mod_name, fpath)
         mod = importlib.util.module_from_spec(spec)
         sys.modules[mod_name] = mod
