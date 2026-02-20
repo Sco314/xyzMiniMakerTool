@@ -542,10 +542,12 @@ class DaVinciHandler(BaseHTTPRequestHandler):
 
         if path == "/" or path == "/index.html":
             html_path = TEMPLATES_DIR / "index.html"
+            if not html_path.exists():
+                html_path = APP_DIR / "index.html"  # fallback: app root
             if html_path.exists():
                 self._send_file(str(html_path), "text/html; charset=utf-8")
             else:
-                self._send_html("<h1>DaVinciPrint</h1><p>templates/index.html not found</p>")
+                self._send_html("<h1>DaVinciPrint</h1><p>index.html not found</p>")
 
         elif path == "/api/status":
             self._send_json(printer.get_status())
