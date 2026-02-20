@@ -30,7 +30,7 @@ Runs from a folder on any Windows PC — no installation needed.
 
 1. Plug in da Vinci printer via USB
 2. Double-click `START.bat`
-3. Browser opens automatically to http://localhost:8080
+3. A local launcher page opens and redirects to http://127.0.0.1:8080
 4. Click **Scan for Printers** → select your printer
 5. Drop an `.stl` or `.gcode` file → pick quality → **Slice & Print**
 
