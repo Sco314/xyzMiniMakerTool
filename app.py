@@ -17,7 +17,6 @@ import time
 import struct
 import logging
 import threading
-import webbrowser
 import importlib.util
 import tempfile
 import subprocess
@@ -542,11 +541,17 @@ class DaVinciHandler(BaseHTTPRequestHandler):
         path = parsed.path
 
         if path == "/" or path == "/index.html":
-            html_path = TEMPLATES_DIR / "index.html"
-            if html_path.exists():
-                self._send_file(str(html_path), "text/html; charset=utf-8")
-            else:
-                self._send_html("<h1>DaVinciPrint</h1><p>templates/index.html not found</p>")
+            # Prefer templates/index.html, but fall back to legacy root index.html
+            # for portable single-folder deployments.
+            html_candidates = [
+                TEMPLATES_DIR / "index.html",
+                APP_DIR / "index.html",
+            ]
+            for html_path in html_candidates:
+                if html_path.exists():
+                    self._send_file(str(html_path), "text/html; charset=utf-8")
+                    return
+            self._send_html("<h1>DaVinciPrint</h1><p>index.html not found (checked templates/ and app root)</p>")
 
         elif path == "/api/status":
             self._send_json(printer.get_status())
@@ -719,15 +724,14 @@ def main():
     print("  ║   v0.3.0 — No install required                   ║")
     print("  ╚═══════════════════════════════════════════════════╝")
     print()
-    print(f"  🌐 Server running at: http://localhost:{port}")
+    print(f"  🌐 Server running at: http://127.0.0.1:{port}")
     print(f"  📂 App directory: {APP_DIR}")
     print(f"  🔧 CuraEngine dir: {CURA_ENGINE_DIR}")
     print()
     print("  Press Ctrl+C to stop.")
     print()
 
-    # Auto-open browser
-    webbrowser.open(f"http://localhost:{port}")
+    print(f"  👉 Open this URL manually if your browser does not launch: http://127.0.0.1:{port}")
 
     try:
         server.serve_forever()

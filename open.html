@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DaVinciPrint Launcher</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: #111827;
+      color: #f9fafb;
+      line-height: 1.5;
+    }
+    .card {
+      max-width: 700px;
+      margin: 0 auto;
+      background: #1f2937;
+      border: 1px solid #374151;
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+    }
+    a { color: #60a5fa; }
+    code {
+      background: #111827;
+      border: 1px solid #374151;
+      border-radius: 6px;
+      padding: 0.15rem 0.4rem;
+      color: #93c5fd;
+    }
+    .muted { color: #9ca3af; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>DaVinciPrint Launcher</h1>
+    <p>Trying to open the local web interface at <code>http://127.0.0.1:8080</code>…</p>
+    <p>If it does not open automatically, click this link:</p>
+    <p><a id="manual-link" href="http://127.0.0.1:8080">Open DaVinciPrint</a></p>
+    <p class="muted">If your managed browser blocks localhost URLs, copy/paste <code>http://127.0.0.1:8080</code> manually.</p>
+  </div>
+
+  <script>
+    const target = "http://127.0.0.1:8080";
+
+    function tryRedirect() {
+      window.location.href = target;
+    }
+
+    // Give the Python server a moment to start, then redirect.
+    setTimeout(tryRedirect, 1200);
+  </script>
+</body>
+</html>

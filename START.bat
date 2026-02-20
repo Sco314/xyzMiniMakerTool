@@ -18,6 +18,10 @@ if exist "python\python.exe" (
     echo %~dp0> "python\Lib\site-packages\davinci.pth"
 )
 
+
+:: --- Open local launcher page (avoids managed-browser localhost blocks) ---
+if exist "%~dp0open.html" start "" "%~dp0open.html"
+
 :: --- Try portable python first ---
 if exist "python\python.exe" (
     echo   Using portable Python: python\python.exe
