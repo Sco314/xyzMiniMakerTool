@@ -541,11 +541,17 @@ class DaVinciHandler(BaseHTTPRequestHandler):
         path = parsed.path
 
         if path == "/" or path == "/index.html":
-            html_path = TEMPLATES_DIR / "index.html"
-            if html_path.exists():
-                self._send_file(str(html_path), "text/html; charset=utf-8")
-            else:
-                self._send_html("<h1>DaVinciPrint</h1><p>templates/index.html not found</p>")
+            # Prefer templates/index.html, but fall back to legacy root index.html
+            # for portable single-folder deployments.
+            html_candidates = [
+                TEMPLATES_DIR / "index.html",
+                APP_DIR / "index.html",
+            ]
+            for html_path in html_candidates:
+                if html_path.exists():
+                    self._send_file(str(html_path), "text/html; charset=utf-8")
+                    return
+            self._send_html("<h1>DaVinciPrint</h1><p>index.html not found (checked templates/ and app root)</p>")
 
         elif path == "/api/status":
             self._send_json(printer.get_status())
