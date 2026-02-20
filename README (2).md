@@ -52,7 +52,7 @@ Tested on: Windows 11 Enterprise 24H2, Intel i5-14500, no admin rights.
 
 1. Plug in da Vinci printer via USB cable
 2. Double-click `START.bat`
-3. Browser opens automatically to http://localhost:8080
+3. A local launcher page opens and redirects to http://127.0.0.1:8080
 4. Click **Scan for Printers** → click your printer (e.g. COM3)
 5. Drop a `.stl` or `.gcode` file → pick quality → click **Slice & Print**
 

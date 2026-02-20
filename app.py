@@ -17,7 +17,6 @@ import time
 import struct
 import logging
 import threading
-import webbrowser
 import importlib.util
 import tempfile
 import subprocess
@@ -719,15 +718,14 @@ def main():
     print("  ║   v0.3.0 — No install required                   ║")
     print("  ╚═══════════════════════════════════════════════════╝")
     print()
-    print(f"  🌐 Server running at: http://localhost:{port}")
+    print(f"  🌐 Server running at: http://127.0.0.1:{port}")
     print(f"  📂 App directory: {APP_DIR}")
     print(f"  🔧 CuraEngine dir: {CURA_ENGINE_DIR}")
     print()
     print("  Press Ctrl+C to stop.")
     print()
 
-    # Auto-open browser
-    webbrowser.open(f"http://localhost:{port}")
+    print(f"  👉 Open this URL manually if your browser does not launch: http://127.0.0.1:{port}")
 
     try:
         server.serve_forever()
