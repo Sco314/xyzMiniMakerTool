@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DaVinciPrint — Portable 3D Printer Interface</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1115;
+    --surface: #181b21;
+    --surface2: #1f2329;
+    --border: #2a2f38;
+    --border-bright: #3a4050;
+    --text: #e2e4e9;
+    --text-dim: #8b8f9a;
+    --accent: #f59e0b;
+    --accent-glow: rgba(245,158,11,0.15);
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,0.12);
+    --red: #ef4444;
+    --red-dim: rgba(239,68,68,0.12);
+    --blue: #3b82f6;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'DM Sans', system-ui, sans-serif;
+    --radius: 8px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+
+  /* ---- Header ---- */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .logo-icon {
+    width: 36px; height: 36px; background: var(--accent);
+    border-radius: 6px; display: grid; place-items: center;
+    font-family: var(--mono); font-weight: 700; font-size: 15px;
+    color: #000; letter-spacing: -0.5px;
+  }
+  .logo h1 {
+    font-family: var(--mono); font-size: 18px; font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .logo h1 span { color: var(--accent); }
+  .header-status {
+    font-family: var(--mono); font-size: 12px; color: var(--text-dim);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--red); display: inline-block;
+    animation: pulse 2s infinite;
+  }
+  .status-dot.connected { background: var(--green); }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; } 50% { opacity: 0.5; }
+  }
+
+  /* ---- Layout ---- */
+  .app-grid {
+    display: grid;
+    grid-template-columns: 320px 1fr 300px;
+    gap: 1px;
+    background: var(--border);
+    min-height: calc(100vh - 69px);
+  }
+  @media (max-width: 1100px) {
+    .app-grid { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--surface);
+    padding: 20px;
+    overflow-y: auto;
+  }
+  .panel-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ---- Cards ---- */
+  .card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .card-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+  .card-value {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .card-value.temp { color: var(--accent); }
+  .card-value.ok { color: var(--green); }
+  .card-value.error { color: var(--red); }
+
+  /* ---- Buttons ---- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 10px 16px;
+    border: 1px solid var(--border-bright);
+    border-radius: var(--radius);
+    background: var(--surface2);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    width: 100%;
+  }
+  .btn:hover { background: var(--border); border-color: var(--text-dim); }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-accent {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+  }
+  .btn-accent:hover { background: #fbbf24; }
+
+  .btn-green { background: var(--green-dim); color: var(--green); border-color: #22c55e33; }
+  .btn-green:hover { background: #22c55e22; }
+
+  .btn-red { background: var(--red-dim); color: var(--red); border-color: #ef444433; }
+  .btn-red:hover { background: #ef444422; }
+
+  .btn-row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .btn-row .btn { flex: 1; }
+
+  /* ---- Dropdown / Select ---- */
+  select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-bright);
+    border-radius: var(--radius);
+    background: var(--surface2);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238b8f9a'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+  }
+  select:focus { outline: none; border-color: var(--accent); }
+
+  /* ---- File Drop Zone ---- */
+  .drop-zone {
+    border: 2px dashed var(--border-bright);
+    border-radius: var(--radius);
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 16px;
+  }
+  .drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--accent);
+    background: var(--accent-glow);
+  }
+  .drop-zone-icon {
+    font-size: 36px;
+    margin-bottom: 8px;
+    opacity: 0.6;
+  }
+  .drop-zone-text {
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+  .drop-zone-text strong { color: var(--accent); }
+  .drop-zone-hint {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 6px;
+    opacity: 0.7;
+  }
+  .file-loaded {
+    display: none;
+    background: var(--green-dim);
+    border: 1px solid #22c55e33;
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--green);
+  }
+  .file-loaded.show { display: block; }
+
+  /* ---- Progress Bar ---- */
+  .progress-wrap {
+    display: none;
+    margin-bottom: 16px;
+  }
+  .progress-wrap.show { display: block; }
+  .progress-bar-bg {
+    height: 8px;
+    background: var(--surface2);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 4px;
+    transition: width 0.3s;
+    width: 0%;
+  }
+  .progress-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  /* ---- Connection Panel ---- */
+  .port-list {
+    margin-bottom: 12px;
+  }
+  .port-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .port-item:hover { border-color: var(--accent); background: var(--accent-glow); }
+  .port-name {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .port-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* ---- Temp display ---- */
+  .temp-row {
+    display: flex; align-items: baseline; gap: 6px;
+  }
+  .temp-current {
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .temp-target {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+
+  /* ---- Print progress ---- */
+  .print-progress-ring {
+    width: 100px; height: 100px; margin: 0 auto 12px;
+    position: relative;
+  }
+  .print-progress-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .print-progress-ring circle {
+    fill: none; stroke-width: 6;
+    cx: 50; cy: 50; r: 42;
+  }
+  .print-progress-ring .bg { stroke: var(--border); }
+  .print-progress-ring .fg {
+    stroke: var(--accent);
+    stroke-linecap: round;
+    stroke-dasharray: 264;
+    stroke-dashoffset: 264;
+    transition: stroke-dashoffset 0.5s;
+  }
+  .print-pct-label {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--mono); font-size: 22px; font-weight: 700;
+  }
+
+  /* ---- Log ---- */
+  .log-area {
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.6;
+    color: var(--text-dim);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 12px;
+  }
+  .log-area .log-ok { color: var(--green); }
+  .log-area .log-err { color: var(--red); }
+  .log-area .log-warn { color: var(--accent); }
+
+  /* ---- Section spacer ---- */
+  .spacer { height: 16px; }
+
+  /* ---- Hidden file input ---- */
+  .hidden-input { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">3D</div>
+    <h1>DaVinci<span>Print</span></h1>
+  </div>
+  <div class="header-status">
+    <span class="status-dot" id="headerDot"></span>
+    <span id="headerStatusText">Disconnected</span>
+  </div>
+</header>
+
+<div class="app-grid">
+
+  <!-- ===== LEFT: Connection + Controls ===== -->
+  <div class="panel">
+    <div class="panel-title">Connection</div>
+
+    <div id="connectSection">
+      <button class="btn" onclick="scanPorts()" id="btnScan">🔍 Scan for Printers</button>
+      <div class="port-list" id="portList"></div>
+    </div>
+
+    <div id="connectedInfo" style="display:none">
+      <div class="card">
+        <div class="card-label">Printer</div>
+        <div class="card-value ok" id="printerModel">—</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Port / Firmware</div>
+        <div class="card-value" id="printerPort" style="font-size:14px">—</div>
+      </div>
+      <button class="btn btn-red" onclick="disconnect()">⏏ Disconnect</button>
+    </div>
+
+    <div class="spacer"></div>
+    <div class="panel-title">Printer Controls</div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="apiPost('/api/home')">🏠 Home</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-green" onclick="apiPost('/api/load_filament')">⬇ Load</button>
+      <button class="btn btn-red" onclick="apiPost('/api/unload_filament')">⬆ Unload</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="apiPost('/api/pause')">⏸ Pause</button>
+      <button class="btn" onclick="apiPost('/api/resume')">▶ Resume</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-red" onclick="if(confirm('Cancel current print?')) apiPost('/api/cancel')">✖ Cancel Print</button>
+    </div>
+
+    <div class="spacer"></div>
+    <div class="panel-title">Activity Log</div>
+    <div class="log-area" id="logArea"></div>
+  </div>
+
+  <!-- ===== CENTER: Print Job ===== -->
+  <div class="panel" style="background: var(--bg);">
+    <div class="panel-title">Print Job</div>
+
+    <!-- File Upload -->
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+      <div class="drop-zone-icon">📦</div>
+      <div class="drop-zone-text">Drop <strong>.STL</strong> or <strong>.GCode</strong> file here</div>
+      <div class="drop-zone-hint">or click to browse</div>
+    </div>
+    <input type="file" class="hidden-input" id="fileInput" accept=".stl,.gcode,.gco" onchange="handleFileSelect(event)">
+
+    <div class="file-loaded" id="fileLoaded">
+      ✅ <span id="loadedFileName">—</span> (<span id="loadedFileSize">—</span>)
+    </div>
+
+    <!-- Quality Picker (STL only) -->
+    <div id="qualitySection" style="display:none">
+      <div class="card-label" style="margin-bottom:6px">PRINT QUALITY</div>
+      <select id="qualitySelect">
+        <option value="fine">🔬 Fine — 0.1mm layers (slow, high detail)</option>
+        <option value="normal" selected>⚖️ Normal — 0.2mm layers (balanced)</option>
+        <option value="draft">⚡ Draft — 0.3mm layers (fast, lower detail)</option>
+      </select>
+      <div class="spacer"></div>
+    </div>
+
+    <!-- Print Button -->
+    <button class="btn btn-accent" id="btnPrint" onclick="startPrint()" disabled>
+      🖨️ Slice & Print
+    </button>
+
+    <!-- Progress -->
+    <div class="spacer"></div>
+    <div class="progress-wrap" id="jobProgress">
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="jobProgressBar"></div>
+      </div>
+      <div class="progress-label" id="jobProgressLabel">—</div>
+    </div>
+  </div>
+
+  <!-- ===== RIGHT: Live Status ===== -->
+  <div class="panel">
+    <div class="panel-title">Printer Status</div>
+
+    <div class="card">
+      <div class="card-label">State</div>
+      <div class="card-value" id="statusState" style="font-size:16px">—</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Extruder Temperature</div>
+      <div class="temp-row">
+        <span class="temp-current" id="statusTemp">—</span>
+        <span class="temp-target">/ <span id="statusTarget">—</span>°C</span>
+      </div>
+    </div>
+
+    <!-- Print Progress Ring -->
+    <div class="card" id="printProgressCard" style="display:none; text-align:center;">
+      <div class="card-label">Print Progress</div>
+      <div class="print-progress-ring">
+        <svg viewBox="0 0 100 100">
+          <circle class="bg"></circle>
+          <circle class="fg" id="progressRing"></circle>
+        </svg>
+        <div class="print-pct-label"><span id="statusPrintPct">0</span>%</div>
+      </div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">
+        Elapsed: <span id="statusElapsed">—</span>min &nbsp;|&nbsp;
+        Remaining: <span id="statusRemaining">—</span>min
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Error Code</div>
+      <div class="card-value" id="statusError" style="font-size:14px">None</div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Filament Remaining</div>
+      <div class="card-value" style="font-size:14px" id="statusFilament">—</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ---- State ----
+let uploadedFile = null;     // {path, name, type: "stl"|"gcode"}
+let pollTimer = null;
+
+// ---- Logging ----
+function log(msg, type = '') {
+  const el = document.getElementById('logArea');
+  const cls = type === 'ok' ? 'log-ok' : type === 'err' ? 'log-err' : type === 'warn' ? 'log-warn' : '';
+  const ts = new Date().toLocaleTimeString('en-US', {hour12:false});
+  el.innerHTML += `<div class="${cls}">[${ts}] ${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+}
+
+// ---- API Helpers ----
+async function apiGet(url) {
+  const r = await fetch(url);
+  return r.json();
+}
+async function apiPost(url, body = {}) {
+  try {
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body),
+    });
+    const data = await r.json();
+    if (data.ok) {
+      log(data.message || 'OK', 'ok');
+    } else {
+      log(data.error || 'Failed', 'err');
+    }
+    return data;
+  } catch(e) {
+    log('Request failed: ' + e.message, 'err');
+    return {ok: false, error: e.message};
+  }
+}
+
+// ---- Port Scanning ----
+async function scanPorts() {
+  document.getElementById('btnScan').disabled = true;
+  document.getElementById('btnScan').textContent = '🔍 Scanning...';
+  log('Scanning serial ports...');
+
+  try {
+    const ports = await apiGet('/api/ports');
+    const list = document.getElementById('portList');
+    list.innerHTML = '';
+
+    if (ports.length === 0) {
+      list.innerHTML = '<div style="padding:12px;color:var(--text-dim);font-size:13px">No serial ports found. Is the printer plugged in and powered on?</div>';
+      log('No ports found', 'warn');
+    } else {
+      ports.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'port-item';
+        div.onclick = () => connectTo(p.port);
+        div.innerHTML = `
+          <div>
+            <div class="port-name">${p.port}</div>
+            <div class="port-desc">${p.desc}</div>
+          </div>
+          <span style="color:var(--accent);font-size:12px">Connect →</span>
+        `;
+        list.appendChild(div);
+      });
+      log(`Found ${ports.length} port(s)`, 'ok');
+    }
+  } catch(e) {
+    log('Scan failed: ' + e.message, 'err');
+  }
+
+  document.getElementById('btnScan').disabled = false;
+  document.getElementById('btnScan').textContent = '🔍 Scan for Printers';
+}
+
+// ---- Connection ----
+async function connectTo(port) {
+  log(`Connecting to ${port}...`);
+  const data = await apiPost('/api/connect', {port});
+  if (data.ok) {
+    document.getElementById('connectSection').style.display = 'none';
+    document.getElementById('connectedInfo').style.display = 'block';
+    document.getElementById('printerModel').textContent = data.model;
+    document.getElementById('printerPort').textContent = `${data.port} • FW ${data.fw}`;
+    document.getElementById('headerDot').classList.add('connected');
+    document.getElementById('headerStatusText').textContent = data.model;
+    log(`Connected: ${data.model}`, 'ok');
+    startPolling();
+  }
+}
+
+async function disconnect() {
+  await apiPost('/api/disconnect');
+  document.getElementById('connectSection').style.display = 'block';
+  document.getElementById('connectedInfo').style.display = 'none';
+  document.getElementById('headerDot').classList.remove('connected');
+  document.getElementById('headerStatusText').textContent = 'Disconnected';
+  stopPolling();
+  log('Disconnected');
+}
+
+// ---- File Upload ----
+const dropZone = document.getElementById('dropZone');
+
+dropZone.addEventListener('dragover', e => {
+  e.preventDefault();
+  dropZone.classList.add('dragover');
+});
+dropZone.addEventListener('dragleave', () => {
+  dropZone.classList.remove('dragover');
+});
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files.length > 0) {
+    uploadFile(e.dataTransfer.files[0]);
+  }
+});
+
+function handleFileSelect(e) {
+  if (e.target.files.length > 0) {
+    uploadFile(e.target.files[0]);
+  }
+}
+
+async function uploadFile(file) {
+  const name = file.name.toLowerCase();
+  const isSTL = name.endsWith('.stl');
+  const isGcode = name.endsWith('.gcode') || name.endsWith('.gco');
+
+  if (!isSTL && !isGcode) {
+    log('Unsupported file type. Use .stl or .gcode', 'err');
+    return;
+  }
+
+  log(`Uploading ${file.name} (${(file.size/1024).toFixed(1)} KB)...`);
+
+  const endpoint = isSTL ? '/api/upload_stl' : '/api/upload_gcode';
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const r = await fetch(endpoint, {method: 'POST', body: formData});
+    const data = await r.json();
+    if (data.ok) {
+      uploadedFile = {path: data.path, name: data.name, type: isSTL ? 'stl' : 'gcode'};
+      document.getElementById('fileLoaded').classList.add('show');
+      document.getElementById('loadedFileName').textContent = data.name;
+      document.getElementById('loadedFileSize').textContent = `${(file.size/1024).toFixed(1)} KB`;
+      document.getElementById('btnPrint').disabled = false;
+
+      // Show quality picker only for STL
+      document.getElementById('qualitySection').style.display = isSTL ? 'block' : 'none';
+      document.getElementById('btnPrint').textContent = isSTL ? '🖨️ Slice & Print' : '🖨️ Convert & Print';
+
+      log(`File ready: ${data.name}`, 'ok');
+    } else {
+      log(`Upload failed: ${data.error}`, 'err');
+    }
+  } catch(e) {
+    log(`Upload error: ${e.message}`, 'err');
+  }
+}
+
+// ---- Print ----
+async function startPrint() {
+  if (!uploadedFile) return;
+
+  document.getElementById('btnPrint').disabled = true;
+
+  if (uploadedFile.type === 'stl') {
+    const quality = document.getElementById('qualitySelect').value;
+    log(`Starting job: ${uploadedFile.name} @ ${quality} quality`);
+    await apiPost('/api/print', {stl_path: uploadedFile.path, quality});
+  } else {
+    log(`Sending GCode: ${uploadedFile.name}`);
+    await apiPost('/api/send_gcode', {gcode_path: uploadedFile.path});
+  }
+
+  document.getElementById('jobProgress').classList.add('show');
+}
+
+// ---- Status Polling ----
+function startPolling() {
+  if (pollTimer) return;
+  pollTimer = setInterval(pollStatus, 2000);
+  pollStatus();
+}
+
+function stopPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+async function pollStatus() {
+  try {
+    const s = await apiGet('/api/status');
+    updateStatusUI(s);
+  } catch(e) {
+    // Silently fail
+  }
+}
+
+function updateStatusUI(s) {
+  // State
+  document.getElementById('statusState').textContent = s.state || '—';
+  document.getElementById('statusState').className = 'card-value' +
+    (s.state_code === 9511 ? ' ok' : s.state_code === 9533 ? ' error' : '');
+
+  // Temperature
+  document.getElementById('statusTemp').textContent = s.extruder_temp || '—';
+  document.getElementById('statusTarget').textContent = s.extruder_target || '0';
+
+  // Error
+  const errEl = document.getElementById('statusError');
+  errEl.textContent = s.error_code || 'None';
+  errEl.className = 'card-value' + (s.error_code ? ' error' : '');
+
+  // Filament
+  const fil = s.filament_remaining_mm;
+  document.getElementById('statusFilament').textContent =
+    fil ? `${(fil/1000).toFixed(1)}m` : '—';
+
+  // Print progress
+  const printing = s.state_code === 9505 || s.print_pct > 0;
+  document.getElementById('printProgressCard').style.display = printing ? 'block' : 'none';
+  if (printing) {
+    const pct = s.print_pct || 0;
+    document.getElementById('statusPrintPct').textContent = pct;
+    // SVG ring: circumference = 2π*42 ≈ 264
+    const offset = 264 - (264 * pct / 100);
+    document.getElementById('progressRing').style.strokeDashoffset = offset;
+    document.getElementById('statusElapsed').textContent = s.print_elapsed_min || '—';
+    document.getElementById('statusRemaining').textContent = s.print_remaining_min || '—';
+  }
+
+  // Job progress
+  const job = s.job;
+  if (job && job.active) {
+    document.getElementById('jobProgress').classList.add('show');
+    document.getElementById('jobProgressBar').style.width = job.progress + '%';
+    document.getElementById('jobProgressLabel').textContent = job.message || job.stage;
+  } else if (job && job.stage === 'done') {
+    document.getElementById('jobProgressBar').style.width = '100%';
+    document.getElementById('jobProgressLabel').textContent = job.message;
+    document.getElementById('btnPrint').disabled = false;
+  } else if (job && job.stage === 'error') {
+    document.getElementById('jobProgressBar').style.width = '0%';
+    document.getElementById('jobProgressLabel').textContent = '❌ ' + job.message;
+    document.getElementById('btnPrint').disabled = false;
+  }
+}
+
+// ---- Init ----
+log('DaVinciPrint ready. Scan for a printer to get started.');
+</script>
+
+</body>
+</html>

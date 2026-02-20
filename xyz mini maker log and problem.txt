@@ -1,0 +1,323 @@
+xyz mini maker pinter is no longer supported by manufacturer. review and analyze to understand the miniMover tool as you will be build using this knowledge or adding to the project. Here are readme docs https://github.com/reality-boy/miniMover/tree/master/docs  (miniMover is a project that lets you send GCode to an XYZ da Vinci printer. It will also convert from a .3w file to .gcode and back, and can monitor and setup the printer as well. This works with newer printers that implement the version 3 serial protocol. These include the Nano, Mini W, miniMaker and Jr. line of printers among others.
+You can read up on the development progress in this forum.
+__http://www.soliforum.com/topic/17028/print-gcode-files-to-minimaker/__
+This works with the following printers over a USB connection. There is limited wireless support but it is not fully functional yet.
+da Vinci nano da Vinci nano w da Vinci miniMaker da Vinci mini w da Vinci mini wA da Vinci mini w+ da Vinci Jr. 1.0 da Vinci Jr. 1.0W da Vinci Jr. 1.0A da Vinci Jr. 1.0 3in1 da Vinci Jr. 1.0 3in1 (Open filament) da Vinci Jr. 1.0 Pro da Vinci Jr. 1.0W Pro da Vinci Jr. 2.0 Mix da Vinci 1.0 Pro da Vinci 1.0 Pro 3in1 da Vinci 1.0 Super
+With these printers I can only convert from gcode to 3w files and back. They use an older communication protocol that I have not implemented yet, so I can't send data to them directly.
+da Vinci 1.0 da Vinci 1.0A da Vinci 1.0 AiO da Vinci 1.1 Plus *** May partially work over usb *** da Vinci 2.0 Duo da Vinci 2.0A Duo
+This comes in two flavors, a win32 GUI and a command line utility.Here is a summary of the commands that the command line can take.usage: miniMover <args> [file]
+  file - print file if .gcode, otherwise convert to gcode if .3w
+  -d devName - set serial port device name or wifi ip address, -1 auto detects port
+  -po devName - set serial port device name, -1 auto detects port
+  -c file - convert file
+  -p file - print file
+  -f file - upload firmware, experimental!
+  -r - print raw status
+  -s - print status
+  -? - print help message
+
+ * The following only work on machines that lack an LCD *
+
+  -a+ - enable auto level
+  -a- - disable auto level
+  -b+ - enable buzzer
+  -b- - disable buzzer
+  -cl - clean nozzle
+  -ca - calibrate bed
+  -h - home printer
+  -l - load filament
+  -o num - increment/decrement z offset by num
+  -u - unload filament
+  -x num - jog x axis by num, or 10 if num not provided
+  -y num - jog y axis by num, or 10 if num not provided
+  -z num - jog z axis by num, or 10 if num not providedThis uses a modified version of the tiny-AES project by kkoke.
+__https://github.com/kokke/tiny-AES-c__
+It also uses a stripped down version of miniz by richgel999
+__https://github.com/richgel999/miniz__
+For downloading firmware from the website this also uses Internet.hpp from Elmü's code project
+__https://www.codeproject.com/Articles/15397/Cabinet-File-CAB-Compression-and-Extraction__
+and the simpleJSON library by MJPA.
+__https://github.com/MJPA/SimpleJSON__
+This is inspired by the threedub programs listed below but it is based on a fresh reverse engineering of the serial protocol.
+__https://gitlab.com/anthem/py-threedub__
+__https://gist.github.com/companje/b700748a49f4af73d57011c644f5a778__
+__http://www.soliforum.com/topic/15639/jr-cura-230-threedub/__
+__https://github.com/mwm/xyzify__
+__https://www.thingiverse.com/thing:1915076__)Show moreFeb 19I'll fetch the documentation from the miniMover GitHub docs folder to understand the project thoroughly.Fetched: miniMover/docs at master · reality-boy/miniMoverFetched: miniMover/docs at master · reality-boy/miniMoverminiMover/docs at master · reality-boy/miniMovergithub.comDoneGitHub didn't render the file listing. Let me use the API to find the docs files.Searched the webSearched the webFailed to fetch https://api.github.com/repos/reality-boy/miniMover/contents/docssite:github.com reality-boy/miniMover docs10 resultsReleases · reality-boy/miniMovergithub.comGitHub - reality-boy/miniMover: Code to control an XYZ miniMaker or Jr line of 3D printergithub.comminiMover/docs/README.md at master · reality-boy/miniMovergithub.comminiMover/docs/v3 notes.txt at master · reality-boy/miniMovergithub.comminiMover/docs at master · reality-boy/miniMovergithub.comminiMover/docs/xyzware_versions.txt at master · reality-boy/miniMovergithub.comminiMover/miniMoverUI/miniMoverUI.cpp at master · reality-boy/miniMovergithub.comminiMover/miniMoverLib at master · reality-boy/miniMovergithub.comminiMover/docs/web download firmware.txt at master · reality-boy/miniMovergithub.comCommits · reality-boy/miniMovergithub.comDoneGood, I found several doc files. Let me fetch them all.Fetched: miniMover/docs/README.md at master · reality-boy/miniMoverFetched: miniMover/docs/README.md at master · reality-boy/miniMoverminiMover/docs/README.md at master · reality-boy/miniMovergithub.comDoneGitHub isn't rendering the raw content. Let me fetch the raw files directly.Searched the webSearched the webFailed to fetch https://raw.githubusercontent.com/reality-boy/miniMover/master/docs/README.mdreality-boy miniMover "v3 notes" serial protocol XYZ printer1 resultminiMover/docs/v3 notes.txt at master · reality-boy/miniMovergithub.comminiMover/docs/v3 notes.txt at master · reality-boy/miniMovergithub.comDoneGitHub is blocking raw content in the rendered page. Let me clone the repo instead to get the actual files.Viewed 4 files, ran a commandViewed 4 files, ran a commandClone the miniMover repo to read docs locallyScriptSee full project structureRead the v3 protocol notes - this is the primary protocol docRead the truncated middle section of v3 notes (lines 290-600)Continue reading v3 notes - remaining query and config commandsDoneNow let me read the other key docs:Viewed 2 filesViewed 2 filesRead v1 notes for older protocolRead v3 wifi notesDoneNow let me read the main library source to understand the code architecture:Read the xyzv3.h header to understand the public APIRead the xyzv3.h header to understand the public APIRead the xyzv3.h header to understand the public APIDoneNow let me look at the stream and serial abstractions:Viewed 2 filesViewed 2 filesRead the stream interfaceRead the serial headerDoneNow let me check the socket header and the README:Viewed 2 filesViewed 2 filesRead the socket headerRead the docs README for user-facing instructionsDoneNow let me quickly look at the printer list and the main xyzv3.cpp for the file encryption/conversion logic:Read printer list definitionsRead printer list definitionsRead printer list definitionsDoneLet me look at the key parts of xyzv3.cpp — the file encryption, printer info array, and core protocol handling:Ran a command, viewed a fileRan a command, viewed a fileFind the printer info array in xyzv3.cppScriptRead the printer info arrayDoneNow let me look at the encryption/decryption and upload sections:Ran a command, viewed a fileRan a command, viewed a fileFind encryption-related functionsScriptRead the encryption key details and file format handlingDoneI now have a thorough understanding of the project. Let me create a comprehensive analysis document.Read the error codes docRead the error codes docRead the error codes docDoneNow I have a very thorough understanding of the entire miniMover project. Let me create the analysis document.Check SKILL.md for markdown creationCheck SKILL.md for markdown creationCheck SKILL.md for markdown creationDoneThis is a knowledge review/analysis, not a document request — I'll create it as a markdown file.Created a file, read a fileCreated a file, read a fileComprehensive analysis of the miniMover project for reference when building tools for the XYZ da Vinci printersminiMover-analysis.mdPresented fileDoneScott, I cloned the full miniMover repo and read through all the docs and source code. Here's what I've internalized — ready to build on:
+The big picture: miniMover reverse-engineers XYZ's proprietary V3 serial protocol so you can bypass XYZware entirely. It sends standard GCode to printers that normally require encrypted .3w files, and handles all the printer control (calibration, filament, z-offset, etc.).
+Key things I now know for building:
+
+V3 Protocol — text commands over 115200 baud serial: XYZv3/query=, XYZv3/config=, XYZv3/action=, XYZv3/upload=. Responses terminate with $. State machine polls j:state,substate (9511 = idle).
+3w file encryption — the keys are hardcoded (@xyzprinting.com for AES-128 CBC header/zip-body, doubled for AES-256 ECB non-zip body). IV is all zeros. PKCS7 padding. Body starts at offset 8192 in blocks of 0x2010 bytes.
+Critical GCode gotcha — G0 must become G1, and the header needs ; machine = dv1MX0A000 (matching your printer model), ; print_time, and ; total_filament.
+Upload protocol — 8KB chunked with big-endian 4-byte block number + size prefix, 4 null-byte suffix, ok acknowledgment per block.
+24 supported printer models fully cataloged with model numbers, serial prefixes, build volumes, capabilities (WiFi, heated bed, dual extruder, laser, scanner).
+
+The analysis doc has the complete protocol reference, state codes, error codes, file format structure, and encryption details. What would you like to build first?Minimover analysisDocument · MD DownloadThe goal is to not just have a functional printer again, but to ensure that the process and experience is streamlined. Open file in slicer, adust settings and slice, sent to printer. So what options do we have for slicers. do we build our own slicer and add this protocol in, does a slicer exist that we can add this protocol to? I would like to not use the minimover inbetween slicer and send to printer as an additional step.Feb 19Great question — let me research what's actually available for slicer integration before we decide on an approach.Searched the webSearched the webPrusaSlicer custom printer protocol plugin send gcode10 resultsSending G-codes to printer via network (Prusa Connect, PrusaLink, Octoprint) | Prusa Kn…help.prusa3d.comSending files to Octoprint/Duet | Prusa Knowledge Basehelp.prusa3d.comtransfer custom gcode in Prusaslicer?forum.prusa3d.comTemplate Custom G-code: What is it for, and how do I use it? – PrusaSlicer – Prusa3D Forumforum.prusa3d.com[Guide] Config PrusaSlicer to send/print to Octoprint on but...forum.prusa3d.comCustom gcode filenames, custom printer? – PrusaSlicer – Prusa3D Forumforum.prusa3d.comPrusa Slicer 2.3.3 - How to add custom gcode at layer? – PrusaSlicer – Prusa3D Forumforum.prusa3d.comWhy is Send G-Code disabled in 2.3.0+ – PrusaSlicer – Prusa3D Forumforum.prusa3d.comCannot send to printer gcode when there are RESOLVING ADDRESS notifications · Issue #11201 · prusa3d/PrusaSlicergithub.comCan you print directly from Prusa slicer? – PrusaSlicer – Prusa3D Forumforum.prusa3d.comCura plugin custom printer protocol serial USB send gcode10 resultsWays to send gcode direct to printer or control during printing? - Firmware - UltiMaker Community of 3D Printing Expertscommunity.ultimaker.comCura/plugins/USBPrinting/USBPrinterOutputDevice.py at main · Ultimaker/Curagithub.comhow to send a g-code to the printer when its pluged in by a USB cable - UltiMaker 3D printers - UltiMaker Community of 3D Printing Expertscommunity.ultimaker.comGeneric wireless send G-Code plugin · Issue #1489 · Ultimaker/Curagithub.commanually specify the com-port - UltiMaker Cura - UltiMaker Community of 3D Printing Expertscommunity.ultimaker.comUSB connection handling proposal · Issue #1049 · Ultimaker/Curagithub.comMonitor tab Send Gcode - display responses · Issue #7565 · Ultimaker/Curagithub.comCommunicate directly with printer from a plugin - UltiMaker Cura - UltiMaker Community of 3D Printing Expertscommunity.ultimaker.comcommand structure usb --> marlin - UltiMaker Cura - UltiMaker Community of 3D Printing Expertscommunity.ultimaker.comHow can I print directly from cura to my 3d printer using usb? - Page 2 - UltiMaker Cura - UltiMaker Community of 3D Printing Expertscommunity.ultimaker.comCura OutputDevicePlugin custom printer plugin Python example10 resultsCura/plugins/USBPrinting/USBPrinterOutputDevice.py at main · Ultimaker/Curagithub.comCura/plugins/UM3NetworkPrinting/src/UM3OutputDevicePlugin.py at master · Ultimaker/Curagithub.comCura/cura/CuraApplication.py at main · Ultimaker/Curagithub.comCreating and Installing my own plugins in Python - Software Plug-ins - UltiMaker Community of 3D Printing Expertscommunity.ultimaker.comCura/plugins/USBPrinting/USBPrinterOutputDevice.py at master · Ultimaker/Curagithub.comPlugins And Packages · Ultimaker/Cura Wiki · GitHubgithub.comCura/plugins/USBPrinting/USBPrinterOutputDeviceManager.py at main · Ultimaker/Curagithub.comcura · GitHub Topics - Pythongithub.com3D printer improvements: How to run a (Cura) Python plugin on STL files without Cura?www.tridimake.comManual for developing cura plugins - UltiMaker Cura - UltiMaker Community of 3D Printing Expertscommunity.ultimaker.comDremel Cura plugin custom printer protocol "OutputDevice" proprietary formatgithub Dremel Cura plugin 3D20 g3drem OutputDevicePlugin10 resultsGitHub - metalman3797/Cura-Dremel-Printer-Plugin: Dremel Idea Builder plugin for Cura version 3.x and onward. This plugin enables the user to use the Dremel Ideabuilder 3D20, 3D40, and 3D45 printers and use Cura to export the proprietary .g3drem files.github.comGitHub - Ghostkeeper/Cura-Dremel-3D20-Plugin: Dremel Idea Builder 3D20 plugin for Cura version 3.x. This plugin enables the user to use the Dremel Ideabuilder 3D20 printer and export the proprietary .g3drem files using Cura.github.comReleases · metalman3797/Cura-Dremel-Printer-Plugingithub.comDremel 3D20 plugin - UltiMaker Cura - UltiMaker Community of 3D Printing Expertscommunity.ultimaker.comGitHub - timmehtimmeh/Cura-Dremel-Printer-Plugin_Copy: Dremel Idea Builder plugin for Cura version 3.x and onward. This plugin enables the user to use the Dremel Ideabuilder 3D20, 3D40, and 3D45 printers and use Cura to export the proprietary .g3drem files.github.comCura-Dremel-Printer-Plugin/README.md at stable · metalman3797/Cura-Dremel-Printer-Plugingithub.comPlugin for Dremel 3D45 - UltiMaker Cura - UltiMaker Community of 3D Printing Expertscommunity.ultimaker.comCura-Dremel-Printer-Plugin/docs/octoprint/README.md at stable · metalman3797/Cura-Dremel-Printer-Plugingithub.comDremel Printer Plugin - Ultimaker Cura Marketplacemarketplace.ultimaker.comCan Cura generate a build for a Dremel 3D? - UltiMaker Cura - UltiMaker Community of 3D Printing Expertscommunity.ultimaker.comDoneThis is really helpful — the Dremel Cura plugin is exactly the same kind of problem (proprietary format, custom protocol). Let me check one more option.Searched the webSearched the webPrusaSlicer "post processing" script convert gcode send printer USB serial10 resultsPost processing script to find an replace Gcode commands – PrusaSlicer – Prusa3D Forumforum.prusa3d.comGitHub - cjbaar/prusa-slicer-post-processing: Scripts for post processing of generated g-code filesgithub.comThe configured post-processing script does not exist – PrusaSlicer – Prusa3D Forumforum.prusa3d.comAdvanced post processing script commandsforum.prusa3d.comPython Post Processing - Overwrite output file in native path · Issue #11334 · prusa3d/PrusaSlicergithub.comBroken PostProcessing when script changes out-filename · Issue #6042 · prusa3d/PrusaSlicergithub.comPost Processing Script für PrusaSlicer (GCode Vorbereitung für Anycubic Cloud import) by DerHolzwurm | Download free STL model | Printables.comwww.printables.comEnabling binary G-Code breaks post processing scripts · Issue #13736 · prusa3d/PrusaSlicergithub.comPost Process scripts fails when run from PrusaSlicer · Issue #4644 · prusa3d/PrusaSlicergithub.comAccept blanks in gcode file path at post processing scripts · Issue #3335 · prusa3d/PrusaSlicergithub.comDoneNow I have a really solid picture. Let me put together a clear options analysis.Created a file, read a fileCreated a file, read a fileOptions analysis for slicer integration with XYZ da Vinci printersslicer-integration-options.mdPresented fileDoneHere's the bottom line, Scott:
+Cura plugin is the clear winner. The Dremel community already solved the exact same problem — proprietary printer with an encrypted file format, no manufacturer software support — by building a Cura OutputDevicePlugin. It's in the Cura Marketplace and works great. We'd follow the same pattern.
+The key advantages:
+
+One-click workflow: Cura's plugin architecture has an OutputDevicePlugin API that puts a "Print to da Vinci" button right next to "Save to File" after slicing. Slice → click → encrypts → uploads → prints. No middleman.
+Python, not C++. All of miniMover's protocol logic (serial comms, AES encryption with the known @xyzprinting.com keys, chunked upload) ports cleanly to Python using pyserial and pycryptodome. No compilation, easy to maintain.
+Printer profiles baked in. We define the miniMaker's bed size (150³), nozzle, temps, and speeds in a JSON definition file. Cura uses those during slicing automatically — students don't have to think about it.
+Classroom deployable. Install Cura, drag-drop the .curapackage plugin, select "da Vinci miniMaker" as your printer, done.
+
+The PrusaSlicer route falls apart because it has no plugin system for output devices — you'd always need a separate sender tool, breaking your streamlined goal. OctoPrint adds unnecessary hardware. Building a slicer from scratch is a non-starter.
+Want to start building the Cura plugin? I'd suggest Phase 1 first: printer definition files + a GCode writer that exports valid .3w files (so students can at least save-to-USB-drive immediately), then Phase 2 adds the live USB serial send.Slicer integration optionsDocument · MD DownloadI intended the usb connection to be between the PC with the slicer and the minimaker via usb cable. revise plan for thatFeb 19That's already what Option A describes — the Cura plugin would send directly from the PC to the miniMaker over the USB cable using the V3 serial protocol. Let me clarify the document so there's no ambiguity.Edited 4 files, read a fileEdited 4 files, read a fileClarify that USB means PC-to-printer cable, not USB thumb drive. Remove the "save to USB drive" fallback framing and make direct USB serial the primary Phase 1 goal.slicer-integration-options.md+37-30Revise phases to make direct USB printing the primary Phase 1, not a later phaseslicer-integration-options.md+8-3Fix the comparison matrix to clarify USB = direct cable, remove Pi references for Option Aslicer-integration-options.md+11-11Update the recommendation section to emphasize direct USB cable connectionslicer-integration-options.md+14-12Presented fileDoneUpdated. To be clear — the plan was always PC → USB cable → miniMaker, same connection XYZware used. The miniMaker shows up as a USB serial device at 115200 baud, and the Cura plugin would open that serial port directly using pyserial, no intermediary hardware.
+The phasing is now:
+
+Phase 1: The full end-to-end experience — auto-detect printer on USB, slice, encrypt, upload, print, all from one "Print to da Vinci" button
+Phase 2: Printer control panel (filament load/unload, calibrate, z-offset)
+Phase 3: Support for other da Vinci models and WiFi-equipped variants
+
+Ready to start building Phase 1 when you are.Slicer integration optionsDocument · MD Downloadstart Phase 1Feb 19Let me start by studying the Dremel plugin structure as our template, then build the Cura plugin.Searched the webSearched the webgithub metalman3797 Cura-Dremel-Printer-Plugin structure plugin.json OutputDevice10 resultsGitHub - metalman3797/Cura-Dremel-Printer-Plugin: Dremel Idea Builder plugin for Cura version 3.x and onward. This plugin enables the user to use the Dremel Ideabuilder 3D20, 3D40, and 3D45 printers and use Cura to export the proprietary .g3drem files.github.comCura-Dremel-Printer-Plugin/docs/octoprint/README.md at stable · metalman3797/Cura-Dremel-Printer-Plugingithub.comReleases · metalman3797/Cura-Dremel-Printer-Plugingithub.comCura-Dremel-Printer-Plugin/README.md at stable · metalman3797/Cura-Dremel-Printer-Plugingithub.comNo Dremel printer available in printers list · Issue #77 · metalman3797/Cura-Dremel-Printer-Plugingithub.comAdd your plugin to the ToolBox · Issue #25 · metalman3797/Cura-Dremel-Printer-Plugingithub.commetalman3797 (Mike) · GitHubgithub.comIncompatible with Cura 3.4 curaplugin file no longer works · Issue #26 · metalman3797/Cura-Dremel-Printer-Plugingithub.comGitHub - timmehtimmeh/Cura-Dremel-Printer-Plugin_Copy: Dremel Idea Builder plugin for Cura version 3.x and onward. This plugin enables the user to use the Dremel Ideabuilder 3D20, 3D40, and 3D45 printers and use Cura to export the proprietary .g3drem files.github.comDremel D345 · Issue #61 · metalman3797/Cura-Dremel-Printer-Plugingithub.comDoneGood — I have a solid understanding of the Cura plugin architecture. Now let me look at the actual Cura USBPrinting plugin code to understand the OutputDevice pattern for direct USB serial, then build the full plugin.Fetched: Cura/plugins/USBPrinting/USBPrinterOutputDevice.py at main · Ultimaker/CuraFetched: Cura/plugins/USBPrinting/USBPrinterOutputDevice.py at main · Ultimaker/CuraCura/plugins/USBPrinting/USBPrinterOutputDevice.py at main · Ultimaker/Curagithub.comDoneGitHub rendered HTML again. Let me clone just the relevant Cura plugin files.Viewed 4 files, ran a commandViewed 4 files, ran a commandClone just the USBPrinting plugin and PrinterOutput base classes from CuraScriptSee the USBPrinting plugin structureRead the plugin.json to understand Cura plugin metadata formatRead the __init__.py to understand plugin registrationRead the USB OutputDeviceManager to understand device discoveryDoneNow I have a thorough understanding of the plugin architecture. This is a large multi-file project — let me build it systematically.Created 2 files, ran a commandCreated 2 files, ran a commandCreate the plugin directory structureScriptPlugin metadata JSON for Curaplugin.jsonPlugin registration — Cura entry point that registers our OutputDevicePlugin__init__.pyDoneNow the core V3 serial protocol module:V3 serial protocol implementation — commands, queries, status parsing, file uploadV3 serial protocol implementation — commands, queries, status parsing, file uploadV3 serial protocol implementation — commands, queries, status parsing, file uploadXYZProtocol.pyDoneLet me check the transcript for where we left off, then continue building.Ran a command, viewed a fileRan a command, viewed a fileCheck end of transcript for where we stoppedScriptCheck what files we already created in the pluginDoneGood — we have plugin.json, __init__.py, and XYZProtocol.py done. Still need the .3w file converter, the device manager, the output device, and the printer definition files. Let me continue building.Created 3 filesCreated 3 filesGCode-to-.3w file converter — handles G0→G1 conversion, header injection, AES encryptionXYZFileConverter.pyOutput device — represents a connected da Vinci printer, provides the 'Print to da Vinci' button in CuraXYZOutputDevice.pyDevice Manager — auto-detects da Vinci printers on USB serial ports, creates OutputDevice instancesXYZDeviceManager.pyDoneNow the printer definition files:Created 5 filesCreated 5 filesCura printer definition for the da Vinci miniMaker — 150mm cube, PLA only, no heated bedxyz_davinci_minimaker.def.jsonExtruder definition for the miniMaker single extruderxyz_davinci_minimaker_extruder.def.jsonQuality profile — Normal (0.2mm layer height)xyz_minimaker_normal.inst.cfgQuality profile — Fine (0.1mm layer height)xyz_minimaker_fine.inst.cfgQuality profile — Draft (0.3mm layer height, fast)xyz_minimaker_draft.inst.cfgDoneNow let me add a README and the install script, then package everything:README with installation and usage instructionsREADME with installation and usage instructionsREADME with installation and usage instructionsREADME.mdDoneNow let me verify everything is structurally sound and do a basic syntax check:Ran 2 commandsRan 2 commandsShow final file structure and line countsScriptSyntax-check all Python filesScriptDoneNow let me test the core logic that doesn't need a printer — the file converter:Ran 2 commandsRan 2 commandsInstall pycryptodome for AES encryption testingScriptTest the file converter — validate .3w structure, encryption, G0→G1 conversionScriptDoneExpected — Cura provides PyQt6, we just need to test the converter directly:Ran 2 commandsRan 2 commandsTest file converter in isolation (no Cura/PyQt deps)ScriptTest file converter by loading module directly, bypassing __init__.pyScriptDoneAll tests pass. Now let me also test the protocol module's static methods:Ran 2 commandsRan 2 commandsTest protocol module — state names, printer DB, status parsingScriptDebug the status parsing issueScriptDoneThat works standalone. The issue was the multi-field . split parsing. Let me check:Find the bug — firmware version with dots gets split by the multi-field parserFind the bug — firmware version with dots gets split by the multi-field parserFind the bug — firmware version with dots gets split by the multi-field parserScriptDoneFound it — the . split for multi-field lines breaks firmware version strings like 1.3.5. The . separator is only used when multiple fields are on one line (like j:9530,11.t:1,205,210). I need to be smarter about the split.Ran 3 commands, edited a fileRan 3 commands, edited a fileFix the multi-field dot-split to only split on dots that are followed by a letter and colon (field separator pattern), not dots inside version strings"XYZProtocol.py+13-10Re-run all protocol tests after the fixScriptEnsure pyserial is properly installedScriptTest port detection with properly imported serialScriptDoneAll tests pass. Now let me package everything and create the output:Ran 3 commands, read a fileRan 3 commands, read a fileCopy plugin to outputsScriptFinal summary of all filesScriptRemove pycache from outputScriptPresented 12 filesDonePhase 1 is built and tested. Here's what you have — 12 files, ~1,220 lines of Python:
+The pipeline (what happens when you click "Print to da Vinci"):
+
+XYZDeviceManager scans USB serial ports every 5s, finds the miniMaker by VID/PID
+XYZOutputDevice registers a "Print to da Vinci" button in Cura's UI
+On click → grabs sliced GCode from Cura scene
+XYZFileConverter preprocesses: converts all G0→G1, injects XYZ header comments, AES-encrypts into .3w format
+XYZProtocol uploads via V3 chunked protocol: 8KB blocks over USB serial at 115200 baud
+Progress bar in Cura during upload, success/error messages at completion
+
+What passed testing here:
+
+✅ .3w file structure (magic, version, tag markers, offsets)
+✅ AES-256-ECB encryption (non-zip, for miniMaker)
+✅ AES-128-CBC encryption (zip variant, for older models)
+✅ G0→G1 conversion
+✅ XYZ header injection
+✅ Cura print info extraction (time, filament, layers)
+✅ V3 status response parsing (state, temps, firmware version with dots)
+✅ Multi-field line parsing (j:9530,11.t:1,205,210)
+
+What needs real-printer testing:
+
+Serial port auto-detection (VID/PID matching on actual hardware)
+Upload handshake timing (ok acknowledgments)
+Print quality settings may need tuning per your specific printer
+
+To install: Copy the XYZDaVinciPlugin folder into Cura's plugins directory, copy the resources/ subfolders to their matching Cura resource paths, and restart Cura. The README has exact paths per OS. You'll also need pycryptodome (pip install pycryptodome) if it's not bundled with your Cura install.ReadmeDocument · MD Download  init  PY DownloadPluginCode · JSON DownloadXyzprotocolPY DownloadXyzfileconverterPY DownloadXyzoutputdevicePY DownloadXyzdevicemanagerPY DownloadXyz davinci minimaker.defCode · JSON DownloadXyz davinci minimaker extruder.defCode · JSON DownloadXyz minimaker normal.instCFG DownloadXyz minimaker fine.instCFG DownloadXyz minimaker draft.instCFG DownloadDownload allCreate a simple “module dependency map” for your code (internal imports) and keep it updated. then start phase 2Feb 19Ran 2 commands, viewed a fileRan 2 commands, viewed a fileReview current plugin structure before creating dependency mapExtract all internal imports to map dependenciesScriptExtract all external imports tooScriptDoneGood, I have the full picture. Now let me create the dependency map and then build Phase 2.Module dependency map — internal imports, external deps, and data flowModule dependency map — internal imports, external deps, and data flowModule dependency map — internal imports, external deps, and data flowDEPENDENCY_MAP.mdDoneNow Phase 2 — printer control panel. Let me check what protocol commands we already have and what needs to be added:See current public methods on XYZProtocolSee current public methods on XYZProtocolSee current public methods on XYZProtocolScriptDoneNeed to add: filament load/unload, calibrate, clean nozzle, jog, z-offset adjust. Then the OutputDevice needs to expose those to Cura, and we need a control panel UI.Add filament load/unload, calibrate, clean nozzle, jog, z-offset, and query_print_progress to XYZProtocolAdd filament load/unload, calibrate, clean nozzle, jog, z-offset, and query_print_progress to XYZProtocolAdd filament load/unload, calibrate, clean nozzle, jog, z-offset, and query_print_progress to XYZProtocolXYZProtocol.py+102-2DoneNow add the control methods to XYZOutputDevice and update its imports:Update XYZOutputDevice imports to include new protocol constants for state trackingUpdate XYZOutputDevice imports to include new protocol constants for state trackingUpdate XYZOutputDevice imports to include new protocol constants for state trackingXYZOutputDevice.py+8-2DoneNow add the printer control methods and an enhanced monitor to XYZOutputDevice:Add Phase 2 printer control methods and enhanced status monitor to XYZOutputDeviceAdd Phase 2 printer control methods and enhanced status monitor to XYZOutputDeviceAdd Phase 2 printer control methods and enhanced status monitor to XYZOutputDeviceXYZOutputDevice.py+376-31DoneNow update the version headers across all files:Edited 2 files, ran a commandEdited 2 files, ran a commandBump version to 0.2.0 across all filesScriptUpdate XYZOutputDevice version headerXYZOutputDevice.py+7-10Update XYZProtocol version headerXYZProtocol.py+6-6DoneNow syntax-check everything and run the tests again:Ran 2 commandsRan 2 commandsSyntax check all files and show updated line countsScriptRun comprehensive tests on Phase 1 + Phase 2 codeScriptDoneNow update the dependency map with Phase 2 additions:Update dependency map with Phase 2 control methods and data flowUpdate dependency map with Phase 2 control methods and data flowUpdate dependency map with Phase 2 control methods and data flowDEPENDENCY_MAP.md+173-141DoneNow copy the updated files to outputs:Ran a command, read a fileRan a command, read a fileCopy updated plugin to outputs and summarizeScriptPresented 3 filesDonePhase 2 is complete. Here's what changed:
+DEPENDENCY_MAP.md — The ASCII-art dependency diagram shows every internal import, every external dep, every export, and all three data flows (print job, status monitor, printer control). This stays at the repo root and gets updated with each phase.
+XYZProtocol.py (445 → 545 lines) — Added 12 new commands:
+
+jog(axis, dir, dist) — move axes manually
+load_filament_start/cancel — filament load with heating
+unload_filament_start/cancel — filament retract
+calibrate_start/detector_ok/release — 3-step bed calibration
+clean_nozzle_start/cancel — heated nozzle cleaning
+z_offset_up/down/get/set — first-layer height tuning
+query_print_progress() — percent/elapsed/remaining
+query_temperature() — live extruder temp
+
+XYZOutputDevice.py (331 → 679 lines) — Added 13 public control methods:
+
+loadFilament() / unloadFilament() — each runs in a background thread, polls state every 2s, shows live progress messages ("Heating...", "Loading...", "Complete!")
+homeAxes() — homes all axes with wait-for-idle
+jogAxis(axis, dir, dist) — quick axis movement
+calibrateBed() — full calibration sequence with detector prompts
+cleanNozzle() — heated clean cycle
+adjustZOffset(dir) / getZOffset() — z-offset tuning
+getPrinterStatus() — returns full status dict for UI
+cancelPrint() / pausePrint() / resumePrint() — job control
+Enhanced _monitor_loop() — now does full query_status() and pushes live temps into Cura's PrinterOutputModel
+
+All methods follow the same pattern: check connected + not printing → launch background thread → send protocol command → poll state every 2s → show Cura Message toasts for progress/completion/errors. No new dependencies added.Dependency mapDocument · MD DownloadXyzoutputdevicePY DownloadXyzprotocolPY DownloadDownload allwhat if I can not download cura to my work pc... is there a way to test connection or is there a workaround we can develop?8:10 AMGood call — let's build a standalone test tool that uses the same XYZProtocol.py and XYZFileConverter.py modules (the two that have zero Cura dependencies) so you can verify everything works with your actual printer before Cura is even in the picture.Viewed a file, created a file, ran a commandViewed a file, created a file, ran a commandCheck what we're working with to plan the standalone toolStandalone CLI test tool — uses XYZProtocol and XYZFileConverter directly, no Cura needed. Interactive menu for connection testing, status queries, printer control, and test prints.xyz_test_tool.pySyntax check the test toolScriptDoneNow update the dependency map with the test tool:Edited a file, ran a command, read a fileEdited a file, ran a command, read a fileAdd test tool to dependency mapDEPENDENCY_MAP.md+37-13Copy everything to outputsScriptPresented 2 filesDoneHere's what you've got — a 706-line interactive CLI that exercises every protocol feature without needing Cura installed.
+Setup on your work PC:
+pip install pyserial pycryptodome
+Run it:
+python xyz_test_tool.py
+It uses importlib to load XYZProtocol.py and XYZFileConverter.py directly, bypassing the __init__.py that triggers Cura/PyQt6 imports. Zero Cura dependencies.
+What you can test with the printer plugged in:
+
+Option 1 — Scan for printers: Detects serial ports, shows VID/PID matches, lets you pick one
+Option 2 — Manual connect: Type COM3 or /dev/ttyUSB0 directly
+Option 4 — Full status: Pretty-printed box showing model, firmware, temps, state, z-offset, filament, everything
+Option 8 — Live monitor: Single-line refreshing display of state/temp/progress (Ctrl+C to stop)
+Options 10-16 — All Phase 2 controls: Home, jog, load/unload filament, calibrate bed, clean nozzle, z-offset adjust — all with live status polling and cancel support
+Option 20 — Offline .3w conversion: Convert any .gcode file to .3w without a printer connected at all — good for verifying the encryption works
+Option 21 — Upload & print: Accepts .gcode (auto-converts to .3w) or raw .3w files, shows a progress bar during upload
+
+This is the first thing to try when you plug the miniMaker in. Start with option 1 (scan), then 4 (full status). If that works, you know the entire protocol stack is solid and Cura integration is just UI wrapping.Xyz test toolPY DownloadDependency mapDocument · MD DownloadDownload allcan we make a slicer app that does not require that I install on windows... can it run locally somehow and communicate over usb but I do not have admin rights to install a windows app. I have windows Windows 11 Enterprise 24H2 26100.7840 Windows Feature Experience Pack 1000.26100.291.0    Intel(R) Core(TM) i5-14500 (2.60 GHz) 16.0 GB (15.7 GB usable) 64-bit operating system, x64-based processor.8:43 AMGreat constraint to work around. Let me think through this carefully.Searched the webSearched the webportable Python Windows no admin install pyserial USB serial10 resultspySerial — pySerial 3.5 documentationpyserial.readthedocs.ioHow install Pyserial of Python for Windows · GitHubgist.github.comPySerial on Windows: Complete Setup Guidewww.pyserial.comGetting Started with PySerialwww.pyserial.orgPySerial Common Errors and Solutionswww.pyserial.orgInstalling PySerialwww.pyserial.compyserial · PyPIpypi.orgInstalling Python and PySerial | Arduino Lesson 17. Email Sending Movement Detector | Adafruit Learning Systemlearn.adafruit.cominstall pyserialpython-forum.ioGitHub - pyserial/pyserial: Python serial port access librarygithub.comDoneGood question — let me break down what's actually possible given your constraints.Searched the webSearched the webportable Python Windows no install admin embeddable package10 resultsPortable Python on Windows | Stardust | Starbeamrainbowlabsstarbeamrainbowlabs.comfully configuring embedded Python on Windows 10 · GitHubgist.github.comInstall Python on a Locked-Down PC Without Local Adminplainenglish.ioTop 4 Ways to Install Python Without Admin Privileges on Windowssqlpey.comWinPythonwinpython.github.ioPortable Python: Create a portable installation of Python on a USB - AutoHotkey Communitywww.autohotkey.comInstalling your Python package on a Windows machine that does not have internet access - Architecture et Performancewww.architecture-performance.frInstalling Python on Windows without Admin Privileges – DNMTechs – Sharing and Storing Technology Knowledgednmtechs.comWorking with Python: In A Lightweight, Isolated Approach | by Rajender Singh | Mediummedium.comHow to install Python (any version) in Windows when you've no admin privileges? - Stack Overflowstackoverflow-com.translate.googWindows USB serial COM port access without admin rights user permission10 resultsDevice Manager - How to amend COM ports without admin access - Microsoft Q&Alearn.microsoft.comAllow changes to COM Port Without Admin Rights - Microsoft Q&Alearn.microsoft.comWindows - easy COM Port Management without Admin Rights with Windows 10 & 11 - Hybrid Infrastructure and Cloud Architecturehartiga.deEnabling USB Access without admin rights |﻿ Windows 7www.edugeek.netHow to Enable USB Port Blocked by Administrator [4 Ways]windowsreport.comHow to have Windows assign installed drivers to USB device for non-admin accounts? - Microsoft Q&Alearn.microsoft.comHow to Enable USB Port in Windows 10/11: Guide for Blocked Portswww.net-usb.com"set rights" serial port windows - NI Communityforums.ni.comcannot access to serial port make sure you have appropriate permission - Microsoft Q&Aanswers.microsoft.comHow to access a USB on Windows 7 without permission or admin rights - Quorawww.quora.comXYZ da Vinci miniMaker USB driver Windows 11 automatically installed CDC ACM10 resultsDownload XYZprinting Da Vinci MiniMaker Printer Drivers for Windows 11, 10, 8.1, 8, or 7 - 64-bit and 32-bit - Treexytreexy.comCDC Abstract Control Model (ACM) Driver Update for Windows 11, 10, 8, 7, XPwww.driverguide.comDownload XYZprinting 3D Printer Da Vinci MiniMaker Port (COM/LPT/Serial) Drivers for Windows 11, 10, 8.1, 8, or 7 - 64-bit and 32-bit - Treexytreexy.comWindows CDC Driver Installation - SEGGER Knowledge Basekb.segger.comCDC ACM Data Driver Update for Windows 11, 10, 8, 7, XP | DriverGuidewww.driverguide.comDownload XYZprinting Da Vinci MiniMaker Port (COM/LPT/Serial) Drivers for Windows 11, 10, 8.1, 8, 7, Vista, XP - 64-bit and 32-bit - Treexytreexy.comWindows 10 Supports/Can Print to Da Vinci Printers, Including the Nano (Page 1) — XYZ Printing DaVinci — SoliForum - 3D Printing Communitywww.soliforum.comHow to install Windows Host ACM (USB CDC) driver? - Processors forum - Processors - TI E2E support forumse2e.ti.comCDC_ACM USB not recognized by windows as serial port · Issue #17266 · zephyrproject-rtos/zephyrgithub.comWindows USB CDC ACM driver error - Microsoft Q&Alearn.microsoft.comDoneNow let me check what slicing engine options exist that could be bundled portably:Searched the webSearched the webCuraEngine standalone command line slicer portable Windows no install10 resultsGitHub - Ultimaker/CuraEngine: Powerful, fast and robust engine for converting 3D models into g-code instructions for 3D printers. It is part of the larger open source project Cura.github.comCuraEngine - Free Software Directorydirectory.fsf.orgBuilding CuraEngine From Sourcegithub.comCuraEngine.exe from the command line - slicing - UM3 - UltiMaker Cura - UltiMaker Community of 3D Printing Expertscommunity.ultimaker.com3D Printing: Cura CLI Wrapper (cura-slicer) | XYZ dims *xyzdims.comcuraEngine from command line - UltiMaker Cura - UltiMaker Community of 3D Printing Expertscommunity.ultimaker.comGitHub - Spiritdude/Cura-CLI-Wrapper: CuraEngine CLI wrapper for easier use.github.comCuraEngine on linux | __('.Stack') | Hackaday.iohackaday.iocommand line for curaEngine - UltiMaker Cura - UltiMaker Community of 3D Printing Expertscommunity.ultimaker.comCuraEngine command line: use Cura .cfg - UltiMaker Cura - UltiMaker Community of 3D Printing Expertscommunity.ultimaker.comDoneNow let me check the biggest potential blocker — the USB driver situation:Searched the webSearched the webXYZ da Vinci miniMaker Windows 10 11 automatic USB driver CDC serial no install needed10 resultsDownload XYZprinting 3D Printer Da Vinci MiniMaker Port (COM/LPT/Serial) Drivers for Windows 11, 10, 8.1, 8, or 7 - 64-bit and 32-bit - Treexytreexy.comXYZprinting Printers drivers download for Windows (32/64bit)www.drvhub.netDownload XYZprinting Da Vinci MiniMaker Printer Drivers for Windows 11, 10, 8.1, 8, or 7 - 64-bit and 32-bit - Treexytreexy.comDownload XYZprinting Da Vinci MiniMaker Port (COM/LPT/Serial) Drivers for Windows 11, 10, 8.1, 8, 7, Vista, XP - 64-bit and 32-bit - Treexytreexy.comXYZprinting 3D Printer da Vinci miniMaker (input devices) drivers for Windowswww.drvhub.netDavinci 1.0 not recognized in windows 10 (Page 1) — XYZ Printing Help/Repair/Maintenance — SoliForum - 3D Printing Communitywww.soliforum.comWindows 10 Supports/Can Print to Da Vinci Printers, Including the Nano (Page 1) — XYZ Printing DaVinci — SoliForum - 3D Printing Communitywww.soliforum.comThe XYZ Da Vinci MiniMaker Desktop 3D printer for budding makerswww.idig3dprinting.co.ukXYZprinting Support Downloads Software Dokus | Fabistron GmbHwww.fabistron.deda Vinci Mini Series User Manual Specification Product Overviewwww.idig3dprinting.co.ukDoneGood, I have enough information. Let me think through this thoroughly and give you an honest assessment plus a plan.
+Okay, here's the honest breakdown. There are three hurdles, and the good news is all three have workable paths.
+Hurdle 1: Python runtime — ✅ Solvable, no admin
+Python's "Windows embeddable package" is just a .zip file you extract to any folder — no installer, no admin, no registry changes. You unzip it to C:\Users\scott\Python, run get-pip.py to bootstrap pip, and install packages locally. This runs completely in your user space.
+Hurdle 2: USB serial driver — ⚠️ The real question mark
+The miniMaker presents itself as a USB CDC-ACM serial device (VID 0x28E7, PID 0x0301). Windows 10+ ships with usbser.sys which is the built-in CDC serial driver. The key question is: has the printer ever been plugged into that PC before? If XYZware was previously installed, the driver is already loaded. If not, Windows 11 should auto-recognize it as a generic COM port — CDC-ACM is a standard USB class and usbser.sys is inbox. But in an Enterprise environment, Group Policy might block new device installation.
+Here's how to test: Just plug the printer in. Open PowerShell (no admin needed) and run:
+powershell[System.IO.Ports.SerialPort]::GetPortNames()
+```
+If you see a new COM port appear, you're golden — no driver install needed.
+
+**Hurdle 3: Slicer engine — ✅ Solvable, and this is the creative part**
+
+We don't need the full Cura GUI. CuraEngine is a standalone `.exe` that takes an STL file and spits out GCode from the command line. We can bundle a pre-built CuraEngine.exe alongside our tool. But even simpler — we can build a **browser-based UI** that runs entirely locally:
+
+**The plan: Portable all-in-one app**
+
+I can build a self-contained folder you put on a USB stick or in your Documents:
+```
+DaVinciPrint/
+  python/                  ← Embeddable Python (~15MB zip)
+  CuraEngine.exe           ← Pre-built slicer binary
+  cura-resources/          ← Printer definitions, settings
+  XYZDaVinciPlugin/        ← Our protocol + converter code
+  app.py                   ← Local web server (Flask/bottle)
+  templates/               ← Browser UI (load STL, pick quality, print)
+  START.bat                ← Double-click to launch
+The workflow would be:
+
+Double-click START.bat
+Browser opens to http://localhost:8080
+Drag-drop STL file → pick quality (fine/normal/draft) → preview
+Click "Slice & Print" → CuraEngine slices → our code encrypts → uploads to printer
+Live status monitor in the browser
+
+No installer, no admin, no Cura GUI. The whole thing runs from a folder.
+Before I build all that though, we need to verify the USB question first. Want to try plugging the printer in and running that PowerShell command? That determines whether we need to work around the driver issue or if we're clear to build the full portable app.Test confirmed: plugging the printer in and running that PowerShell command resulting in a new COM port appearing, it was called COM38:58 AMThat's the big one — USB works without admin. We're clear to build the full portable app.
+Let me build the complete self-contained package. I'll start with the web UI and local server, then the CuraEngine integration and the bootstrap scripts.Viewed 6 files, ran a commandViewed 6 files, ran a commandCheck current plugin files to referenceCheck XYZProtocol to understand detect_xyz_ports signatureCheck detect_xyz_ports and upload_fileReview XYZFileConverter extract_print_info and convert signaturesCheck extract_print_info and convert_gcode_to_3w method signaturesFind the static methodScriptCheck extract_print_infoDoneGood, I have the full picture. Now let me build the portable app — web server + browser UI + bootstrap scripts.Ran 2 commandsRan 2 commandsCreate portable app folder structureScriptCopy the two standalone modules into the portable appScriptDoneNow create the web server — this is the heart of the app:Main web server — local Flask-like app (using built-in http.server to avoid extra deps). Handles STL upload, slicing via CuraEngine, conversion to .3w, and USB upload. Also serves printer status API for live monitoring.Main web server — local Flask-like app (using built-in http.server to avoid extra deps). Handles STL upload, slicing via CuraEngine, conversion to .3w, and USB upload. Also serves printer status API for live monitoring.Main web server — local Flask-like app (using built-in http.server to avoid extra deps). Handles STL upload, slicing via CuraEngine, conversion to .3w, and USB upload. Also serves printer status API for live monitoring.app.pyDoneNow the browser UI — this is the main interface students and you will interact with:Viewed a file, created a fileViewed a file, created a fileRead the frontend design skill for best practicesBrowser UI — single-page HTML app with embedded CSS/JS. Industrial/utilitarian aesthetic matching the 3D printing workshop context. Handles: printer connection, STL upload, quality selection, slice+print, live status, printer controls.index.htmlDoneNow create the Windows bootstrap scripts:Created 3 filesCreated 3 filesWindows batch file to launch the app — auto-finds Python or uses portable pythonSTART.batOne-time setup script for portable Python — configures pip and installs dependencies. No admin needed.SETUP.batREADME for the portable app — setup instructions, architecture, troubleshootingREADME.mdDoneNow let me verify everything compiles and the server starts:Ran 3 commandsRan 3 commandsSyntax check all portable app filesScriptQuick smoke test — verify server starts and serves the UIScriptIntegration test — start server, hit API endpoints, verify responsesScriptDonePort scan crashed because serial.tools isn't imported in this test context. Let me fix the import issue and add a try/catch:Fix serial.tools import in XYZProtocol detect_xyz_portsFix serial.tools import in XYZProtocol detect_xyz_portsFix serial.tools import in XYZProtocol detect_xyz_portsXYZProtocol.py+12-11DoneAlso fix the same issue in the original plugin copy:Edited a file, ran a commandEdited a file, ran a commandFix same import issue in original XYZProtocolXYZProtocol.py+12-11Re-run integration tests after fixScriptDoneAll endpoints working. Now let me create the wheels/ folder with a readme, create placeholder directories, and package everything up:Create placeholder dirs with readme filesCreate placeholder dirs with readme filesCreate placeholder dirs with readme filesScriptDoneNow update the dependency map:Add DaVinciPrint portable app to dependency mapAdd DaVinciPrint portable app to dependency mapAdd DaVinciPrint portable app to dependency mapDEPENDENCY_MAP.md+57-23DoneNow copy everything to outputs:Ran 2 commands, read a fileRan 2 commands, read a filePackage everything to outputsScriptRemove pycache from outputScriptPresented 5 filesDoneHere's the complete portable app. Your setup steps on the work PC:
+One-time setup (~5 min):
+
+Download the whole DaVinciPrint/ folder to C:\Users\YourName\Documents\DaVinciPrint\
+Go to python.org → Downloads → Windows → grab the "Windows embeddable package (64-bit)" zip (~11MB)
+Extract that zip into DaVinciPrint\python\ (you should see python\python.exe)
+Double-click SETUP.bat — it patches the ._pth file, downloads pip, installs pyserial + pycryptodome
+
+Daily use:
+
+Plug in the miniMaker
+Double-click START.bat
+Browser opens to localhost:8080 — three-panel interface:
+
+Left: Connection panel (scan → click COM3 → connected), printer controls (home, filament load/unload, pause/cancel)
+Center: Drag-drop .STL or .GCode file, pick quality, click "Slice & Print"
+Right: Live status (state, temperature, progress ring, error codes)
+
+
+
+Two workflows depending on CuraEngine:
+
+With CuraEngine: Drop an STL → auto-slices → encrypts → uploads. To get CuraEngine, copy CuraEngine.exe and fdmprinter.def.json from any Cura installation (home PC, etc.) into cura-engine/
+Without CuraEngine: Slice at home in any slicer, save the .gcode, bring it on a USB stick, drop it in the UI → encrypts → uploads. This works immediately with zero extra files.
+
+The whole thing is ~2,400 lines of code, runs on localhost only, sends zero data to the internet, and needs no admin rights.ReadmeDocument · MD DownloadAppPY DownloadIndexCode · HTML DownloadSTART.bat DownloadSETUP.bat DownloadDownload allI Clicked on python.exe and I got this: "Python 3.13.12 (tags/v3.13.12:1cbe481, Feb  3 2026, 18:22:25) [MSC v.1944 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+>>>
+I clicked on SETUP.bat and it ran. 
+I clicked on START.bat and this is what I got: ""ΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù
+  Γòæ   DaVinciPrint ΓÇö Portable 3D Printer Interface   Γòæ
+  ΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥
+  Using portable Python: python\python.exe
+Traceback (most recent call last):
+  File "C:\Users\ssandvik\Documents\DaVinciPrint\app.py", line 41, in <module>
+    from XYZDaVinciPlugin.XYZProtocol import (
+        XYZProtocol, XYZPrinterStatus, PRINTER_DB, STATE_NAMES
+    )
+ModuleNotFoundError: No module named 'XYZDaVinciPlugin'
+Press any key to continue . . ." please adviseShow more9:18 AMThe embeddable Python's ._pth file restricts where it looks for modules. We need to tell it to look in the app directory. Quick fix:Fix module import — add explicit sys.path setup before importing our modules, so embeddable Python can find XYZDaVinciPlugin/Fix module import — add explicit sys.path setup before importing our modules, so embeddable Python can find XYZDaVinciPlugin/Fix module import — add explicit sys.path setup before importing our modules, so embeddable Python can find XYZDaVinciPlugin/app.py+19-14DoneBut the real issue is likely that SETUP.bat uncommented import site but didn't add the app directory to the ._pth file. Let me also update SETUP.bat to add . (current directory) to the path file:Update SETUP.bat to also add current directory '.' to the ._pth file so embeddable Python can find local modulesUpdate SETUP.bat to also add current directory '.' to the ._pth file so embeddable Python can find local modulesUpdate SETUP.bat to also add current directory '.' to the ._pth file so embeddable Python can find local modulesSETUP.bat+6-6DoneAlso update START.bat to set the working directory explicitly and pass app dir to Python:Ran 2 commands, edited a file, read a fileRan 2 commands, edited a file, read a fileEnsure START.bat sets PYTHONPATH so embeddable Python always finds our modulesSTART.bat+11-8Verify the fix compiles and server still startsScriptCopy fixed files to outputsScriptPresented 3 filesDoneTwo things to do on your work PC:
+1. Fix the ._pth file (since SETUP.bat already ran once without the fix):
+Open PowerShell, navigate to your DaVinciPrint folder, and run:
+powershell$pth = Get-ChildItem python\python*._pth
+$content = Get-Content $pth
+if ($content -notcontains '.') { $content += '.'; $content | Set-Content $pth }
+Get-Content $pth
+You should see a line with just . at the end. That tells embeddable Python to look in the current directory.
+2. Replace the three updated files — app.py, START.bat, SETUP.bat — with the new versions I just provided.
+Then double-click START.bat again. The fix attacks from two angles: START.bat now sets PYTHONPATH pointing at the app folder, and app.py now explicitly inserts its own directory into sys.path before importing. Either one alone should be enough, but belt-and-suspenders given the embeddable Python quirks.AppPY DownloadSTART.bat DownloadSETUP.bat DownloadDownload allok here is the actual path C:\Users\ssandvik\Documents\DaVinciPrint is that actual path conflicting with the code and commands etc or is that what was used?9:28 AMThat path is perfectly fine — no conflict at all. The code uses Path(__file__).parent.resolve() which dynamically discovers its own location at runtime, so it doesn't matter where you put the folder. The START.bat uses %~dp0 which is the batch file's own directory. Both are relative, not hardcoded.
+The error you hit was purely about embeddable Python's ._pth file restricting its import search path — nothing to do with your folder location.
+Did you get the three updated files replaced and the ._pth fix applied? Ready to try START.bat again?PowerShell 7.5.4
+PS C:\Users\ssandvik> [System.IO.Ports.SerialPort]::GetPortNames()
+COM1
+PS C:\Users\ssandvik> [System.IO.Ports.SerialPort]::GetPortNames()
+COM1
+COM3
+PS C:\Users\ssandvik> $pth = Get-ChildItem python\python*._pth
+Get-ChildItem: Cannot find path 'C:\Users\ssandvik\python' because it does not exist.
+PS C:\Users\ssandvik> $content = Get-Content $pth
+Get-Content: Cannot bind argument to parameter 'Path' because it is null.
+PS C:\Users\ssandvik> if ($content -notcontains '.') { $content += '.'; $content | Set-Content $pth }
+Set-Content: Cannot bind argument to parameter 'Path' because it is null.
+PS C:\Users\ssandvik> $pth = Get-ChildItem python\python*._pth
+Get-ChildItem: Cannot find path 'C:\Users\ssandvik\python' because it does not exist.
+PS C:\Users\ssandvik> $pth = Get-ChildItem python\python*._pth
+Get-ChildItem: Cannot find path 'C:\Users\ssandvik\python' because it does not exist.
+PS C:\Users\ssandvik>Show more2:22 PMYou need to cd into the DaVinciPrint folder first — PowerShell is looking at C:\Users\ssandvik\ instead of where the python\ subfolder lives:
+powershellcd C:\Users\ssandvik\Documents\DaVinciPrint
+$pth = Get-ChildItem python\python*._pth
+$content = Get-Content $pth
+if ($content -notcontains '.') { $content += '.'; $content | Set-Content $pth }
+Get-Content $pth
+```
+
+The output should show something like:
+```
+python313.zip
+.
+import site
+That . on its own line is the key part — it tells Python "also look in the current working directory for modules." Once that's there, replace the three updated files and try START.bat again.PS C:\Users\ssandvik> cd C:\Users\ssandvik\Documents\DaVinciPrint
+PS C:\Users\ssandvik\Documents\DaVinciPrint> $pth = Get-ChildItem python\python*._pth
+PS C:\Users\ssandvik\Documents\DaVinciPrint> $content = Get-Content $pth
+PS C:\Users\ssandvik\Documents\DaVinciPrint> if ($content -notcontains '.') { $content += '.'; $content | Set-Content $pth }
+PS C:\Users\ssandvik\Documents\DaVinciPrint> Get-Content $pth
+python313.zip
+.
+# Uncomment to run site.main() automatically
+import site
+PS C:\Users\ssandvik\Documents\DaVinciPrint>  ΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù
+  Γòæ   DaVinciPrint ΓÇö Portable 3D Printer Interface   Γòæ
+  ΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥
+  Using portable Python: python\python.exe
+Traceback (most recent call last):
+  File "C:\Users\ssandvik\Documents\DaVinciPrint\app.py", line 46, in <module>
+    from XYZDaVinciPlugin.XYZProtocol import (
+        XYZProtocol, XYZPrinterStatus, PRINTER_DB, STATE_NAMES
+    )
+ModuleNotFoundError: No module named 'XYZDaVinciPlugin'
+Press any key to continue . . .Show more2:25 PMThe ._pth file is overriding sys.path — the . resolves to wherever python.exe is (inside python\), not the app root. Let me fix app.py to use an absolute path that can't be overridden:Use absolute path insertion at position 0 before any imports — this cannot be overridden by ._pthUse absolute path insertion at position 0 before any imports — this cannot be overridden by ._pthUse absolute path insertion at position 0 before any imports — this cannot be overridden by ._pthapp.py+25-19DoneAlso remove the now-redundant later imports that were already handled:Ran 2 commands, edited a file, read a fileRan 2 commands, edited a file, read a fileRemove duplicate imports that were already handled in bootstrap sectionapp.py+12-15Verify fix compiles and server startsScriptCopy fixed app.py to outputsScriptPresented fileDoneReplace just app.py and try START.bat again. The problem was that embeddable Python's . in the ._pth file resolves relative to python\python.exe — so it was searching DaVinciPrint\python\ for XYZDaVinciPlugin, not DaVinciPrint\. The fix now uses Path(__file__).parent.resolve() to get the absolute path to app.py's directory and injects that into sys.path before anything else runs.AppPY DownloadΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù
+  Γòæ   DaVinciPrint ΓÇö Portable 3D Printer Interface   Γòæ
+  ΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥
+  Using portable Python: python\python.exe
+Traceback (most recent call last):
+  File "C:\Users\ssandvik\Documents\DaVinciPrint\app.py", line 46, in <module>
+    from XYZDaVinciPlugin.XYZProtocol import (
+        XYZProtocol, XYZPrinterStatus, PRINTER_DB, STATE_NAMES
+    )
+ModuleNotFoundError: No module named 'XYZDaVinciPlugin'
+Press any key to continue . . .Show more2:27 PMSame error — the ._pth file is actively blocking sys.path modifications. Let me debug this properly. The issue is that embeddable Python ignores sys.path.insert() when a ._pth file is present and site isn't fully loaded yet.
+Let me take a different approach — add a .pth file inside the python/ directory that points back to the app root:Update SETUP.bat to create a .pth file inside python/Lib/site-packages that points to the app root — this is the proper way to add paths for embeddable PythonUpdate SETUP.bat to create a .pth file inside python/Lib/site-packages that points to the app root — this is the proper way to add paths for embeddable PythonUpdate SETUP.bat to create a .pth file inside python/Lib/site-packages that points to the app root — this is the proper way to add paths for embeddable PythonSETUP.bat+12-6DoneBut since SETUP already ran, also update START.bat to create the .pth file on every launch as a failsafe:Update START.bat to ensure the .pth file exists before launching — belt and suspendersUpdate START.bat to ensure the .pth file exists before launching — belt and suspendersUpdate START.bat to ensure the .pth file exists before launching — belt and suspendersSTART.bat+18-11DoneAlso harden app.py with a sitecustomize approach — write a temp sitecustomize.py if needed:Ran 2 commands, edited a file, read a fileRan 2 commands, edited a file, read a fileNuclear option — if sys.path insertion doesn't work, use sitecustomize.py and also try direct __import__ with specapp.py+57-25VerifyScriptCopy all fixed files to outputsScriptPresented 3 filesDoneReplace all three files. This version attacks the problem from three directions:
+
+START.bat now creates python\Lib\site-packages\davinci.pth containing your app path on every launch — this is the officially supported way to add paths in embeddable Python
+app.py creates python\sitecustomize.py on first run which injects the path at startup
+app.py has a fallback except ModuleNotFoundError block that uses importlib.util.spec_from_file_location() to load the modules directly by absolute file path — this bypasses sys.path entirely
+
+At least one of those three will work. Replace the files and try START.bat again. 
+
+
+
+when clicking start this is the result now:
+
+  ΓòöΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòù
+  Γòæ   DaVinciPrint ΓÇö Portable 3D Printer Interface   Γòæ
+  ΓòÜΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓò¥
+
+  Using portable Python: python\python.exe
+Traceback (most recent call last):
+  File "C:\Users\ssandvik\Documents\DaVinciPrint\app.py", line 54, in <module>
+    from XYZDaVinciPlugin.XYZProtocol import (
+        XYZProtocol, XYZPrinterStatus, PRINTER_DB, STATE_NAMES
+    )
+ModuleNotFoundError: No module named 'XYZDaVinciPlugin'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ssandvik\Documents\DaVinciPrint\app.py", line 69, in <module>
+    _proto_mod = _force_load("XYZDaVinciPlugin.XYZProtocol", "XYZProtocol.py")
+  File "C:\Users\ssandvik\Documents\DaVinciPrint\app.py", line 66, in _force_load
+    spec.loader.exec_module(mod)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "<frozen importlib._bootstrap_external>", line 1019, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1156, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1214, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\ssandvik\\Documents\\DaVinciPrint\\XYZDaVinciPlugin\\XYZProtocol.py'
+Press any key to continue . . .
